@@ -1,0 +1,157 @@
+<div id="product" class="{{ product.handle }}">
+  
+  <div class="row clearfix">
+    
+    <!-- Begin breadcrumb -->
+    <div class="span12">
+      <div class="breadcrumb clearfix">
+        <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb"><a href="{{ shop.url }}" title="{{ shop.name | escape }}" itemprop="url"><span itemprop="title">Home</span></a></span> 
+        <span class="arrow-space">&#62;</span>
+        <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+          {% if collection %}
+            <a href="{{ collection.url }}" title="{{ collection.title | escape }}">{{ collection.title }}</a>
+          {% else %}
+            <a href="/collections/all" title="All Products">Products</a>
+          {% endif %}
+        </span>
+        <span class="arrow-space">&#62;</span>
+        <strong>{{ product.title }}</strong>
+      </div>
+    </div>
+    <!-- End breadcrumb -->
+    
+    <!-- Begin product photos -->
+    <div class="{% if product.images.size > 1 %}span5 {% else %} span6 {% endif %}">
+      
+      <!-- Begin featured image -->
+      <div class="image featured">
+        {% if settings.enable_product_image_zoom %}
+        <a href="{{ product.featured_image | product_img_url: 'original' }}" class="cloud-zoom" rel="position: 'inside', showTitle: 'false'" id="placeholder">
+          <img src="{{ product.featured_image | product_img_url: 'original' }}" alt="{{ product.featured_image.alt | escape }}" />
+        </a>
+        {% else %}
+        <a href="{{ product.featured_image | product_img_url: 'original' }}" class="zoom" id="placeholder">
+          <img src="{{ product.featured_image | product_img_url: 'original' }}" alt="{{ product.featured_image.alt | escape }}" />
+        </a>
+        {% endif %}
+      </div>
+      <!-- End product image -->
+      
+    </div>
+    <!-- End product photos -->
+    
+    {% if product.images.size > 1 %}
+    <!-- Begin thumbnails -->
+    <div class="span1">
+      <div class="thumbs clearfix">
+        {% for image in product.images %}
+        {% if settings.enable_product_image_zoom %}
+        <div class="image">
+          <a href="{{ image | product_img_url: 'original' }}" class="cloud-zoom-gallery" rel="useZoom: 'placeholder', smallImage: '{{ image | product_img_url: 'grande' }}', tint: '#ffffff'">
+            <img src="{{ image | product_img_url: 'small' }}" alt="{{ image.alt | escape }}" />
+          </a>
+        </div>
+        {% else %}
+        <div class="image">
+          <a href="{{ image | product_img_url: 'original' }}" data-original-image="{{ image | product_img_url: 'original' }}">
+            <img src="{{ image | product_img_url: 'compact' }}" alt="{{ image.alt | escape }}" />
+          </a>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    <!-- End thumbnails -->
+    {% endif %}
+    
+    
+    <!-- Begin description -->
+    <div class="span6">
+      
+      <h1 class="title">{{ product.title }}</h1>
+      
+      <div class="purchase">
+        <h2 class="price" id="price-preview">{{ product.price_min | money }}{% if product.price_min < product.compare_at_price_min %} <del>{{ product.compare_at_price_min | money }}</del>{% endif %}</h2>
+      </div>
+      
+      <div class="description">
+        {{ product.description }}
+      </div>
+      
+      <form id="add-item-form" action="/cart/add" method="post" class="variants clearfix">
+        
+        <!-- Begin product options -->
+        <div class="product-options">
+          {% if product.options.size > 1 %}
+          <div class="select clearfix">
+            <select id="product-select" name='id'>
+              {% for variant in product.variants %}
+              <option value="{{ variant.id }}">{{ variant.title }} - {{ variant.price | money }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          {% elsif product.options.size == 1 and product.variants.size > 1 %}
+          <div class="select clearfix">
+            <label>{{ product.options[0] }}</label>
+            <select id="product-select" name='id'>
+              {% for variant in product.variants %}
+              <option value="{{ variant.id }}">{{ variant.title }} - {{ variant.price | money }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          {% else %}
+            <input type="hidden" name="id" value="{{ product.variants.first.id }}" />
+          {% endif %}
+          {% if settings.display_quantity_dropdown %}
+          <div class="selector-wrapper">
+            <label>Quantity</label>
+            <textarea name="quantity" value="1" placeholder="1"></textarea>
+          </div>
+          {% endif %}
+          
+          <div class="purchase-section{% if product.variants.size > 1 %} multiple{% endif %}">
+            <div class="purchase">
+              {% unless product.available %}
+              <p>Sold Out</p>
+              {% else %}
+              <input type="submit" id="add-item-to-cart" class="btn" name="add" value="Add to cart" />
+              {% endunless %}
+            </div>
+          </div>
+          
+        </div>
+        <!-- End product options -->
+        
+      </form>
+      
+      {% if settings.show_social %}
+      <!-- Begin social buttons -->
+      <div class="social">
+        {% include 'like' %}
+      </div>
+      <!-- End social buttons -->
+      {% endif %}
+    
+    </div>
+    <!-- End description -->
+    
+  </div>
+  
+  <!-- Begin related product -->
+  {% if settings.show_related_products %}
+    {% if collection and collection.products.size > 1 %}
+    <div class="row">
+      <div class="span12">
+        <h3 class="collection-title">Related products</h3>
+      </div>
+    </div> 
+    
+    <div class="row products">
+      {% for product in collection.products limit:4 %}
+      {% include 'product-loop' with collection.handle %}
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endif %}
+  
+</div> 
