@@ -68,7 +68,7 @@
     <!-- Begin description -->
     <div class="span6">
       
-      <h1 class="title">{{ product.title }}</h1>
+      <h2 class="title">{{ product.title }}</h2>
       
       <div class="purchase">
         <h2 class="price" id="price-preview">{{ product.price_min | money }}{% if product.price_min < product.compare_at_price_min %} <del>{{ product.compare_at_price_min | money }}</del>{% endif %}</h2>
